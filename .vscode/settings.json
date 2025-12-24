@@ -1,0 +1,7 @@
+{
+    "geminicodeassist.inlineSuggestions.enableAuto": false,
+    "accessibility.verbosity.inlineCompletions": false,
+    "github.copilot.chat.copilotDebugCommand.enabled": false,
+    "github.copilot.chat.reviewSelection.enabled": false,
+    "makefile.configureOnOpen": false
+}
