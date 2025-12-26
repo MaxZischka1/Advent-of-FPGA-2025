@@ -8,7 +8,5 @@ let parse val_str =
       let num_str = String.sub line ~pos:1 ~len:(String.length line - 1) in
 
       let num_val = Int.of_string num_str in
-
-      printf "Direction: %c , Value %d \n" dir_char num_val;
-       (dir_char, num_val)
+      (dir_char, num_val)
   );

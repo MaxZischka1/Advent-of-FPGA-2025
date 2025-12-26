@@ -10,14 +10,14 @@ let%expect_test "Advent of Code TB" =
   let inputs = Cyclesim.inputs sim in
   let outputs = Cyclesim.outputs sim in
 
-inputs.clr := Bits.vdd;
-Cyclesim.cycle sim;
-inputs.clr := Bits.gnd;
+  inputs.clr := Bits.vdd;
+  Cyclesim.cycle sim;
+  inputs.clr := Bits.gnd;
 
-let raw_input = {|L28
+  let raw_input = {|L28
 R38
 R40
-L467|} in
+R7|} in
   let commands = Day1Parser.parse raw_input in 
   List.iter commands ~f:(fun(dir,valu) ->
   inputs.din := Bits.of_char dir;

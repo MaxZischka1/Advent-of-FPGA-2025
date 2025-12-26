@@ -55,11 +55,11 @@ let circuit(i : _ I.t) =
               counter <-- counter.value +:. 1;
             ];
             when_ (dir.value ==:. 0)[
-              acc <-- acc.value +: i.din;
+              acc <-- acc.value -: i.din;
               sm.set_next Eval;
             ];
             when_ (dir.value ==:. 1)[
-              acc <-- acc.value -: i.din;
+              acc <-- acc.value +: i.din;
               sm.set_next Eval;
             ];
           ];
@@ -68,10 +68,10 @@ let circuit(i : _ I.t) =
           when_(i.valid)[
             when_(acc.value >=:. 100)[
               when_(dir.value ==:. 0)[
-                acc <-- acc.value -:. 100;
+                acc <-- acc.value +:. 100;
               ];
               when_(dir.value ==:. 1)[
-                acc <-- acc.value +:. 100;
+                acc <-- acc.value -:. 100;
               ];
             ];
             when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum; ];
@@ -89,49 +89,4 @@ let circuit(i : _ I.t) =
 
 
 
-  (* let spec = Reg_spec.create ~clock:i.clk ~clear:i.clr () in
-
-  let acc = Variable.reg ~enable:i.valid ~width:8 spec in
-
-  let sm = State_machine.create (module State) spec in
-
-  let tempVal = Variable.reg spec ~width:8 in
-  let dir = Variable.reg spec ~width:1 in
-  let newSum = Variable.reg spec ~width:8 in
-
-  let shiftCount = Variable.reg spec ~width:2 in
-  let counter = Variable.reg spec ~width:8 in
-
-  let input_digit = i.din -: Signal.of_int_trunc ~width:8 48 in
-  
-
-  let () =
-    compile [
-      sm.switch [
-        Idle, [
-          when_ i.valid [
-            when_ (i.din ==:. 76) [ dir <--. 1; sm.set_next AddSum; ]; 
-            when_ (i.din ==:. 82) [ dir <--. 0; sm.set_next AddSum ]; 
-          ];
-        ];
-        AddSum, [
-          when_ i.valid [
-            if_ (i.din >. 57 &: i.din <. 48) [
-              when_(shiftCount ==:. 1)[
-                tempVal <-- tempVal.value +: input_digit
-              ]
-            ][
-                sm.set_next Eval;
-              ];
-            ];
-          ];
-        Eval, [
-
-        ]
-        Done, [
-
-        ]
-      ]
-    ] in
-
-    {O.rotSum = acc.value; O.counter = counter.value} *)
+ 
