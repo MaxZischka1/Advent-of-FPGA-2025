@@ -1,7 +1,7 @@
 (library
  (name test_range_finder)
  (libraries core hardcaml 
- hardcaml_demo_project 
+ DayOne 
  hardcaml_test_harness
    hardcaml_waveterm 
    re)

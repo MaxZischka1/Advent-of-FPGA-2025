@@ -2,6 +2,7 @@ _build
 *.install
 *.merlin
 _opam
-# Ignore the large binary file that caused the error
+
+input.txt
 bin/generate.bc
 bin/generate.exe

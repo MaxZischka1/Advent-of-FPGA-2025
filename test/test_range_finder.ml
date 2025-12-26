@@ -1,6 +1,6 @@
 open! Core
 open! Hardcaml
-open! Hardcaml_demo_project
+open! DayOne
 
 let%expect_test "Advent of Code TB" = 
   let module Sim = Cyclesim.With_interface(Day1Adder.I)(Day1Adder.O) in

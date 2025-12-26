@@ -2,14 +2,14 @@
  (modes byte exe)
  (names generate)
  (libraries core.command core_unix.command_unix core core_unix hardcaml
-   hardcaml_demo_project jane_rope)
+   DayOne jane_rope)
  (preprocess
   (pps ppx_jane))
  (promote))
  (executable
- (name simulate)
+ (name main)
  (libraries
   hardcaml
   hardcaml_waveterm
-  hardcaml_demo_project) 
- (modules simulate))
+ DayOne) 
+ (modules main))
