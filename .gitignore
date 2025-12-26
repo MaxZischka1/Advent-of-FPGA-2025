@@ -3,6 +3,6 @@ _build
 *.merlin
 _opam
 
-input.txt
+**/input.txt
 bin/generate.bc
 bin/generate.exe
