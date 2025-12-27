@@ -12,7 +12,7 @@ end
 module O = struct
   type 'a t = {
     rotSum : 'a[@bits 8];
-    counter : 'a[@bits 8];
+    counter : 'a[@bits 16];
   }[@@deriving hardcaml, sexp_of]
 end
 
@@ -35,7 +35,7 @@ let circuit(i : _ I.t) =
 
   let acc = Variable.reg ~enable:i.valid ~width:8 spec in
 
-  let counter = Variable.reg ~enable:i.valid ~width:8 spec in
+  let counter = Variable.reg ~enable:i.valid ~width:16 spec in
 
   let dir = Variable.reg ~width:1 spec in
 
