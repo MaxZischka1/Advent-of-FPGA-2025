@@ -41,12 +41,10 @@ List.iter commands ~f:(fun (dir, valu) ->
   );
 
     Cyclesim.cycle sim;
-    Cyclesim.cycle sim;
 
-    Stdio.printf "\n--- FINAL HARDWARE STATE ---\n";
+    
     Stdio.printf "Final Sum: %d\n" (Bits.to_int_trunc !(outputs.rotSum));
     Stdio.printf "Final Count: %d\n" (Bits.to_int_trunc !(outputs.counter));
-    Stdio.printf "----------------------------\n";
     Hardcaml_waveterm.Waveform.print waves
 
 let () = main ()
