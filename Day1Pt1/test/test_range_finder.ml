@@ -1,6 +1,6 @@
 open! Core
 open! Hardcaml
-open! DayOne
+open! DayOnePartOne
 
 let main () =
   let module Sim = Cyclesim.With_interface(Day1Adder.I)(Day1Adder.O) in
@@ -24,7 +24,7 @@ let main () =
     Cyclesim.cycle sim;
     Cyclesim.cycle sim;
 
-  let file_input = In_channel.read_all "Day1/test/input.txt" in
+  let file_input = In_channel.read_all "Day1Pt1/test/input.txt" in
   let commands = Day1Parser.parse file_input in 
   List.iter commands ~f:(fun (dir, valu) ->
     inputs.din := Bits.of_char dir;
