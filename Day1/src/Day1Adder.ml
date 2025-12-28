@@ -21,7 +21,9 @@ module State = struct
   type t = 
     | Idle
     | AddSum
-    | Eval
+    | AddMod
+    | Loop
+    | Finish
     [@@deriving enumerate, compare ~localize, sexp_of]
 end 
 
@@ -37,6 +39,8 @@ let circuit(i : _ I.t) =
   let acc = Variable.reg ~enable:i.valid ~width:8 spec in
 
   let addSumAcc = Variable.reg ~enable:i.valid ~width:8 spec in
+
+  let subCounter = Variable.reg ~enable:i.valid ~width:1 spec in
 
   let counter = Variable.reg ~enable:i.valid ~width:16 spec in
 
@@ -54,19 +58,20 @@ let circuit(i : _ I.t) =
         ];
         AddSum, [
           when_ (i.valid)[
+            subCounter <--. 0;
             addSumAcc <-- acc.value;
             when_ (dir.value ==:. 0)[
               when_(acc.value ==:. 0)[counter <-- counter.value -:. 1;];
               acc <-- acc.value -: i.din;
-              sm.set_next Eval;
+              sm.set_next AddMod;
             ];
             when_ (dir.value ==:. 1)[
               acc <-- acc.value +: i.din;
-              sm.set_next Eval;
+              sm.set_next AddMod;
             ];
           ];
         ];
-        Eval, [
+        AddMod, [
           when_(i.valid)[
             when_(acc.value >=:. 100)[
               when_(dir.value ==:. 0)[
@@ -75,17 +80,31 @@ let circuit(i : _ I.t) =
               when_(dir.value ==:. 1)[
                 acc <-- acc.value -:. 100;
               ];
-              counter <-- counter.value +:. 1;
+              subCounter <--. 1;
             ];
             when_((acc.value ==:. 0)) [
-              counter <-- counter.value +:. 1;
-              ];
-            when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum; ];
-            when_ (i.din ==:. 82) [dir <--. 1; sm.set_next AddSum; ];
+              subCounter <--. 1;
+            ];
+            counter <-- (counter.value +: (uresize i.din ~width:16));
+            sm.set_next Loop;
           ];
         ];
+      Loop, [
+        if_(i.valid)[
+          counter <-- (counter.value +: (uresize subCounter.value ~width:16));
+          when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum; ];
+          when_ (i.din ==:. 82) [dir <--. 1; sm.set_next AddSum; ];
+        ][
+          sm.set_next Finish;
+        ]
+      ];
+      Finish,[
+
+      ];
       ];
     ] in
+
+    
 
 
   {O.rotSum = addSumAcc.value; O.counter = counter.value; O.dinOut = i.din}

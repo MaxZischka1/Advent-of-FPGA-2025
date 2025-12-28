@@ -16,23 +16,31 @@ let main () =
     inputs.clr := Bits.gnd;
     Cyclesim.cycle sim;
 
+
+    (*initialize the state machine*)
     inputs.din := Bits.of_char 'L';
     inputs.valid := Bits.vdd;
     Cyclesim.cycle sim;
     inputs.valid := Bits.vdd;
     inputs.din := Bits.of_int_trunc ~width:8 0;
     Cyclesim.cycle sim;
+    inputs.din := Bits.of_int_trunc ~width:8 0;
+    Cyclesim.cycle sim;
     Cyclesim.cycle sim;
 
   let file_input = In_channel.read_all "Day1/test/input.txt" in
   let commands = Day1Parser.parse file_input in 
-  List.iter commands ~f:(fun (dir, valu) ->
+  List.iter commands ~f:(fun (dir, valu, hundVal) ->
     inputs.din := Bits.of_char dir;
     inputs.valid := Bits.vdd;
     Cyclesim.cycle sim;
     inputs.valid := Bits.vdd;
     inputs.din := Bits.of_int_trunc ~width:8 valu;
     Cyclesim.cycle sim;
+    inputs.valid := Bits.vdd;
+    inputs.din := Bits.of_int_trunc ~width:8 hundVal;
+    Cyclesim.cycle sim;
+
 
 
     Stdio.printf "Full Sum: %d , Count: %d, Din: %d\n"
@@ -41,7 +49,8 @@ let main () =
       (Bits.to_int_trunc!(outputs.dinOut))
 
   );
-
+    Cyclesim.cycle sim;
+    inputs.valid := Bits.gnd;
     Cyclesim.cycle sim;
     Cyclesim.cycle sim;
 
