@@ -5,7 +5,7 @@ module I = struct
     clk : 'a;
     clr : 'a;
     valid : 'a;
-    din : 'a[@bits 8]; (*We will create an input of a char 'L' or 'R' then an in between 0 and 99*)
+    din : 'a[@bits 8]; 
   }[@@deriving hardcaml, sexp_of]
 end
 
@@ -13,6 +13,7 @@ module O = struct
   type 'a t = {
     rotSum : 'a[@bits 8];
     counter : 'a[@bits 16];
+    dinOut : 'a[@bits 8];
   }[@@deriving hardcaml, sexp_of]
 end
 
@@ -35,6 +36,8 @@ let circuit(i : _ I.t) =
 
   let acc = Variable.reg ~enable:i.valid ~width:8 spec in
 
+  let addSumAcc = Variable.reg ~enable:i.valid ~width:8 spec in
+
   let counter = Variable.reg ~enable:i.valid ~width:16 spec in
 
   let dir = Variable.reg ~width:1 spec in
@@ -45,16 +48,15 @@ let circuit(i : _ I.t) =
         Idle, [
           when_ (i.valid)[
             acc <--. 50;
-            when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum; ];
-            when_ (i.din ==:. 82) [dir <--. 1; sm.set_next AddSum; ];
+            when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum;];
+            when_ (i.din ==:. 82) [dir <--. 1; sm.set_next AddSum;];
           ];
         ];
         AddSum, [
           when_ (i.valid)[
-            when_(acc.value ==:. 0)[
-              counter <-- counter.value +:. 1;
-            ];
+            addSumAcc <-- acc.value;
             when_ (dir.value ==:. 0)[
+              when_(acc.value ==:. 0)[counter <-- counter.value -:. 1;];
               acc <-- acc.value -: i.din;
               sm.set_next Eval;
             ];
@@ -73,7 +75,11 @@ let circuit(i : _ I.t) =
               when_(dir.value ==:. 1)[
                 acc <-- acc.value -:. 100;
               ];
+              counter <-- counter.value +:. 1;
             ];
+            when_((acc.value ==:. 0)) [
+              counter <-- counter.value +:. 1;
+              ];
             when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum; ];
             when_ (i.din ==:. 82) [dir <--. 1; sm.set_next AddSum; ];
           ];
@@ -82,7 +88,7 @@ let circuit(i : _ I.t) =
     ] in
 
 
-  {O.rotSum = acc.value; O.counter = counter.value}
+  {O.rotSum = addSumAcc.value; O.counter = counter.value; O.dinOut = i.din}
 
 
 

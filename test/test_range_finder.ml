@@ -31,9 +31,10 @@ R7|} in
 
     Cyclesim.cycle sim;
 
-    Stdio.printf "Full Sum: %d , Count: %d\n"
+    Stdio.printf "Full: %d , Count: %d, Din: %d\n"
     (Bits.to_int_trunc!(outputs.rotSum))
     (Bits.to_int_trunc!(outputs.counter))
+    (Bits.to_int_trunc!(outputs.dinOut))
     );
 
     [%expect {|
