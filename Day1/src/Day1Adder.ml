@@ -1,6 +1,8 @@
 open! Core
 open! Hardcaml
+
 module I = struct
+  (*I/O Struct*)
   type 'a t = {
     clk : 'a;
     clr : 'a;
@@ -17,13 +19,14 @@ module O = struct
   }[@@deriving hardcaml, sexp_of]
 end
 
+(*State structs needed 3 min for three pieces of data*)
 module State = struct
   type t = 
-    | Idle
-    | AddSum
+    | Idle (*Initialize acc to 50.*)
+    | AddSum (*Next three create loop*)
     | AddMod
     | Loop
-    | Finish
+    | Finish (*To prevent counter from incrementing continously*)
     [@@deriving enumerate, compare ~localize, sexp_of]
 end 
 
@@ -32,7 +35,7 @@ let circuit(i : _ I.t) =
 
   let open Always in
 
-  let spec = Reg_spec.create ~clock:i.clk ~clear:i.clr () in
+  let spec = Reg_spec.create ~clock:i.clk ~clear:i.clr () in 
 
   let sm = State_machine.create (module State) spec in
 
@@ -107,7 +110,8 @@ let circuit(i : _ I.t) =
     
 
 
-  {O.rotSum = addSumAcc.value; O.counter = counter.value; O.dinOut = i.din}
+  {O.rotSum = addSumAcc.value; O.counter = counter.value; O.dinOut = i.din} 
+  (*dinOut and rotSum are used for debugging only need counter 16-bits which is annoying*)
 
 
 

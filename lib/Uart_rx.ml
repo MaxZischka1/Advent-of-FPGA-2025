@@ -1,17 +1,16 @@
-module Uart_rx = struct
-  open! Core
-  open! Hardcaml
-  open! Signal
-  open! Always
+open! Core
+open! Hardcaml
+open! Signal
+open! Always
 
-  module States = struct
-    type t =
-    | Idle
-    | Start
-    | Data
-    | Finish
-    [@@deriving enumerate, compare ~localize, sexp_of]
-  end 
+module States = struct
+  type t =
+  | Idle
+  | Start
+  | Data
+  | Finish
+  [@@deriving enumerate, compare ~localize, sexp_of]
+end 
 
   let initialize ~clock ~rx =
     let spec = Reg_spec.create ~clock () in
@@ -68,5 +67,3 @@ module Uart_rx = struct
     ];
 
     (data.value, valid.value)
-
-end

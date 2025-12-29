@@ -7,4 +7,4 @@
    re)
  (preprocess
   (pps ppx_hardcaml ppx_jane))
- (inline_tests))
+ (inline_tests (deps input.txt)))
