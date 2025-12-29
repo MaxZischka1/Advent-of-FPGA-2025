@@ -1,7 +1,6 @@
 (library
- (name DayOnePartOneTest)
+ (name CommonLib)
  (libraries core hardcaml  
- DayOnePartOne
  hardcaml_test_harness
    hardcaml_waveterm 
    re)

@@ -1,5 +1,5 @@
 (library
- (name test_range_finder)
+ (name DayOneTest)
  (libraries core hardcaml 
  DayOne 
  hardcaml_test_harness
