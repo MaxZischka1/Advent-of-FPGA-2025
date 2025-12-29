@@ -21,7 +21,7 @@ module Uart_rx = struct
     let cycleCount = Variable.reg ~width:9 spec in
     let bitCount = Variable.reg ~width:4 spec in
     let data = Variable.reg ~width:8 spec in
-    let valid = Variable.reg ~width:1 in (*Change this in SM*)
+    let valid = Variable.reg ~width:1 spec in (*Change this in SM*)
 
     let sm = State_machine.create (module States) spec in
 
@@ -30,6 +30,7 @@ module Uart_rx = struct
         Idle,[
           when_(rx ==:. 0)[
             cycleCount <--. 0;
+            valid <--. 0;
             sm.set_next Start;
           ];
         ];
@@ -48,6 +49,7 @@ module Uart_rx = struct
             if_(bitCount.value ==:. 7)[
               bitCount <--. 0;
               sm.set_next Finish;
+              valid <--. 1;
             ][
               bitCount <-- bitCount.value +:. 1;
             ]
@@ -57,7 +59,6 @@ module Uart_rx = struct
         ];
         Finish, [
           if_(cycleCount.value ==:. (cpb-1))[
-            valid.Variable.assign vdd;
             sm.set_next Idle;
           ][
             cycleCount <-- cycleCount.value +:. 1;
