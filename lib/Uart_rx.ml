@@ -9,8 +9,8 @@ module States = struct
   | Start
   | Data
   | Finish
-  [@@deriving enumerate, compare ~localize, sexp_of]
-end 
+    [@@deriving enumerate, compare ~localize, sexp_of]
+  end 
 
   let initialize ~clock ~rx =
     let spec = Reg_spec.create ~clock () in
@@ -44,7 +44,7 @@ end
         Data, [
           if_(cycleCount.value ==:. (cpb - 1))[
             cycleCount <--. 0;
-            data <-- (rx @:  (sel_top ~width:7 data.value));
+            data <-- ((select ~high:6 ~low:0 data.value) @: rx);
             if_(bitCount.value ==:. 7)[
               bitCount <--. 0;
               sm.set_next Finish;
@@ -58,6 +58,7 @@ end
         ];
         Finish, [
           if_(cycleCount.value ==:. (cpb-1))[
+            valid <--. 0;
             sm.set_next Idle;
           ][
             cycleCount <-- cycleCount.value +:. 1;

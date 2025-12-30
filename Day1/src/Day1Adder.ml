@@ -6,8 +6,8 @@ module I = struct
   type 'a t = {
     clk : 'a;
     clr : 'a;
-    valid : 'a;
     din : 'a[@bits 8]; 
+    valid : 'a;
   }[@@deriving hardcaml, sexp_of]
 end
 
@@ -110,7 +110,7 @@ let circuit(i : _ I.t) =
     
 
 
-  {O.rotSum = addSumAcc.value; O.counter = counter.value; O.dinOut = i.din} 
+   {O.counter = counter.value; O.rotSum = addSumAcc.value; O.dinOut = i.din}
   (*dinOut and rotSum are used for debugging only need counter 16-bits which is annoying*)
 
 

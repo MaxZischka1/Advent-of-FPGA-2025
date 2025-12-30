@@ -2,8 +2,6 @@
  (name main)
  (libraries
   hardcaml
-  DayOne
-  CommonLib
- DayOnePartOne
+  DayOneWrapper
  hardcaml_waveterm) 
  (modules main))

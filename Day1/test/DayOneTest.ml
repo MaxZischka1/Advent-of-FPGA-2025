@@ -1,4 +1,4 @@
-open! Core
+open! Core (*Didn't use waveform of waveterm need don't really understand it*)
 open! Hardcaml
 open! DayOne
 
@@ -23,12 +23,17 @@ let%expect_test "Advent of Code TB" =
     inputs.din := Bits.of_int_trunc ~width:8 valu;
     Cyclesim.cycle sim;
     inputs.din := Bits.of_int_trunc ~width:8 hundVal;
+    inputs.valid := Bits.gnd;
+    Cyclesim.cycle sim;
+    Cyclesim.cycle sim;
+    Cyclesim.cycle sim;
+    inputs.valid := Bits.vdd;
     Cyclesim.cycle sim;
     );
     Cyclesim.cycle sim;
 
-    Stdio.printf "Full Sum: %d , Count: %d, dinOut: %d\n"
-    (Bits.to_int_trunc !(outputs.rotSum))
-    (Bits.to_int_trunc !(outputs.counter))
-    (Bits.to_int_trunc !(outputs.dinOut));
-    [%expect {| Full Sum: 18 , Count: 5831, dinOut: 0 |}]
+    Stdio.printf "Count: %d\n"
+    (* (Bits.to_int_trunc !(outputs.rotSum)) *)
+    (Bits.to_int_trunc !(outputs.counter));
+    (* (Bits.to_int_trunc !(outputs.dinOut)) *)
+    [%expect {||}]
