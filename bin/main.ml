@@ -1,5 +1,6 @@
 open! Core
 open! Hardcaml
+open! DayOne
 open! DayOneWrapper
 
 module Sim = Cyclesim.With_interface(Day1Wrap.I)(Day1Wrap.O)
@@ -31,19 +32,24 @@ let run_simulation () =
   inputs.rx := Bits.vdd;
   Cyclesim.cycle sim;
 
-  sendInt(76);
-  inputs.rx := Bits.vdd;
-  for _ = 1 to 7 do Cyclesim.cycle sim done;
-  sendInt(44);
-  inputs.rx := Bits.vdd;
+  let lines = In_channel.read_all "Day1/test/input.txt" in
+
+  let commands = Day1Parser.parse lines in
+
+  List.iter commands ~f:(fun(dir,valu, hundVal) -> 
+    sendInt(dir);
+    for _ = 1 to 7 do Cyclesim.cycle sim done;
+    sendInt(valu);
+    for _ = 1 to 7 do Cyclesim.cycle sim done;
+    sendInt(hundVal);
+    for _ = 1 to 7 do Cyclesim.cycle sim done;
+  );
+  sendInt(82);
   for _ = 1 to 7 do Cyclesim.cycle sim done;
   sendInt(0);
-
-  for _ = 1 to 10 do Cyclesim.cycle sim done;
-
-  
-  
-
+  for _ = 1 to 7 do Cyclesim.cycle sim done;
+  sendInt(0);
+  for _ = 1 to 7 do Cyclesim.cycle sim done;
     ) ~finally:(fun () ->
       Out_channel.close vcd_file
       )

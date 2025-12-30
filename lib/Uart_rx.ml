@@ -47,8 +47,8 @@ module States = struct
             data <-- (rx @: (select ~high:7 ~low:1 data.value));
             if_(bitCount.value ==:. 7)[
               bitCount <--. 0;
-              sm.set_next Finish;
               valid <--. 1;
+              sm.set_next Finish;   
             ][
               bitCount <-- bitCount.value +:. 1;
             ]
@@ -57,9 +57,9 @@ module States = struct
           ]
         ];
         Finish, [
+          valid <--. 0;
           if_(cycleCount.value ==:. (cpb - 1))[
             cycleCount <--. 0;
-            valid <--. 0;
             sm.set_next Idle;
           ][
             cycleCount <-- cycleCount.value +:. 1;
