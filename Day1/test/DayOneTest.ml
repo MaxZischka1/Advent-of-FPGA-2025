@@ -19,6 +19,7 @@ R38
 R40
 L467|} in
   let commands = Day1Parser.parse raw_input in 
+  (*test for not valid data bits*)
   List.iter commands ~f:(fun(dir,valu, hundVal) ->
     inputs.valid := Bits.gnd;
     Cyclesim.cycle sim;

@@ -14,7 +14,7 @@ let run_simulation () =
     let sim = Hardcaml.Vcd.wrap vcd_file sim_engine in
     let inputs = Cyclesim.inputs sim in
     
-  let sendInt (valu : int) =
+  let sendInt (valu : int) = (*function to make List.iter much more readable*)
     inputs.rx := Bits.gnd;
     for _ = 1 to 4 do Cyclesim.cycle sim done;
     for i = 0 to 7 do
@@ -36,7 +36,7 @@ let run_simulation () =
 
   let commands = Day1Parser.parse lines in
 
-  List.iter commands ~f:(fun(dir,valu, hundVal) -> 
+  List.iter commands ~f:(fun(dir,valu, hundVal) ->  (*iterates through all values in list*)
     sendInt(dir);
     for _ = 1 to 7 do Cyclesim.cycle sim done;
     sendInt(valu);
@@ -44,13 +44,14 @@ let run_simulation () =
     sendInt(hundVal);
     for _ = 1 to 7 do Cyclesim.cycle sim done;
   );
-  sendInt(82);
+
+  sendInt(82); (*Flushing out final variabels R0 operation*)
   for _ = 1 to 7 do Cyclesim.cycle sim done;
   sendInt(0);
   for _ = 1 to 7 do Cyclesim.cycle sim done;
   sendInt(0);
   for _ = 1 to 7 do Cyclesim.cycle sim done;
-    ) ~finally:(fun () ->
+    ) ~finally:(fun () -> (*Had gemini help me create vcd files*)
       Out_channel.close vcd_file
       )
 

@@ -34,11 +34,11 @@ let circuit(i : _ I.t) =
 
   let sm = State_machine.create (module State) spec in
 
-  let acc = Variable.reg ~enable:i.valid ~width:8 spec in
+  let acc = Variable.reg ~enable:i.valid ~width:8 spec in (*Cannot without idle, should find other way*)
 
-  let addSumAcc = Variable.reg ~enable:i.valid ~width:8 spec in
+  let addSumAcc = Variable.reg ~enable:i.valid ~width:8 spec in (*For testing*)
 
-  let counter = Variable.reg ~enable:i.valid ~width:16 spec in
+  let counter = Variable.reg ~enable:i.valid ~width:16 spec in (*Final ans*)
 
   let dir = Variable.reg ~width:1 spec in
 

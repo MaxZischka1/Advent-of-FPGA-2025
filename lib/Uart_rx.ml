@@ -24,9 +24,10 @@ module States = struct
 
     let sm = State_machine.create (module States) spec in
 
+    (*Uart sm*)
     compile [
       sm.switch [
-        Idle,[
+        Idle,[ (*wait for gnd*)
           when_(rx ==:. 0)[
             cycleCount <--. 0;
             valid <--. 0;
@@ -57,7 +58,7 @@ module States = struct
           ]
         ];
         Finish, [
-          valid <--. 0;
+          valid <--. 0; (*Only valid for 1 clock cycle*)
           if_(cycleCount.value ==:. (cpb - 1))[
             cycleCount <--. 0;
             sm.set_next Idle;
