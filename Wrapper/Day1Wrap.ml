@@ -16,6 +16,7 @@ module O = struct
     dinOut : 'a[@bits 8];
     curSum : 'a[@bits 8];
     count : 'a[@bits 16];
+    valid : 'a;
   } [@@deriving hardcaml, sexp_of]
 end
 
@@ -30,4 +31,4 @@ let circuit(i : _ I.t) =
     Day1Adder.I.valid = validu;
   } in
 
-  {O.count = counter_out.counter; O.curSum = counter_out.rotSum; O.dinOut = counter_out.dinOut}
+  {O.count = counter_out.counter; O.curSum = counter_out.rotSum; O.dinOut = counter_out.dinOut; O.valid = validu}

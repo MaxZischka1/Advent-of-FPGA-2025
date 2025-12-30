@@ -14,10 +14,16 @@ let%expect_test "Advent of Code TB" =
   Cyclesim.cycle sim;
   inputs.clr := Bits.gnd;
 
-  let lines = In_channel.read_all "input.txt" in
-  let commands = Day1Parser.parse lines in 
+  let raw_input = {|L28
+R38
+R40
+L467|} in
+  let commands = Day1Parser.parse raw_input in 
   List.iter commands ~f:(fun(dir,valu, hundVal) ->
-    inputs.din := Bits.of_char dir;
+    inputs.valid := Bits.gnd;
+    Cyclesim.cycle sim;
+    inputs.din := Bits.of_int_trunc ~width:8 dir;
+    Cyclesim.cycle sim;
     inputs.valid := Bits.vdd;
     Cyclesim.cycle sim;
     inputs.din := Bits.of_int_trunc ~width:8 valu;
@@ -29,6 +35,9 @@ let%expect_test "Advent of Code TB" =
     Cyclesim.cycle sim;
     inputs.valid := Bits.vdd;
     Cyclesim.cycle sim;
+    Stdio.printf "Count: %d rotSum: %d\n"
+    (Bits.to_int_trunc !(outputs.rotSum)) 
+    (Bits.to_int_trunc !(outputs.counter));
     );
     Cyclesim.cycle sim;
 

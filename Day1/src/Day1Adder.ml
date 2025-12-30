@@ -26,7 +26,6 @@ module State = struct
     | AddSum (*Next three create loop*)
     | AddMod
     | Loop
-    | Finish (*To prevent counter from incrementing continously*)
     [@@deriving enumerate, compare ~localize, sexp_of]
 end 
 
@@ -53,14 +52,16 @@ let circuit(i : _ I.t) =
     compile [
       sm.switch[
         Idle, [
-          when_ (i.valid)[
+          if_ (i.valid)[
             acc <--. 50;
             when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum;];
             when_ (i.din ==:. 82) [dir <--. 1; sm.set_next AddSum;];
-          ];
+          ][
+            sm.set_next Idle;
+          ]
         ];
         AddSum, [
-          when_ (i.valid)[
+          if_ (i.valid)[
             subCounter <--. 0;
             addSumAcc <-- acc.value;
             when_ (dir.value ==:. 0)[
@@ -72,10 +73,12 @@ let circuit(i : _ I.t) =
               acc <-- acc.value +: i.din;
               sm.set_next AddMod;
             ];
-          ];
+          ][
+
+          ]
         ];
         AddMod, [
-          when_(i.valid)[
+          if_(i.valid)[
             when_(acc.value >=:. 100)[
               when_(dir.value ==:. 0)[
                 acc <-- acc.value +:. 100;
@@ -90,19 +93,19 @@ let circuit(i : _ I.t) =
             ];
             counter <-- (counter.value +: (uresize i.din ~width:16));
             sm.set_next Loop;
-          ];
+          ][
+            sm.set_next AddMod;
+          ]
         ];
       Loop, [
         if_(i.valid)[
+          subCounter <--. 0;
           counter <-- (counter.value +: (uresize subCounter.value ~width:16));
           when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum; ];
           when_ (i.din ==:. 82) [dir <--. 1; sm.set_next AddSum; ];
         ][
-          sm.set_next Finish;
+          sm.set_next Loop;
         ]
-      ];
-      Finish,[
-
       ];
       ];
     ] in

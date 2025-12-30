@@ -4,54 +4,48 @@ open! DayOneWrapper
 
 module Sim = Cyclesim.With_interface(Day1Wrap.I)(Day1Wrap.O)
 
-let run_test() = 
-  let sim = Sim.create Day1Wrap.circuit in
-  let inputs = Cyclesim.inputs sim in
-  let outputs = Cyclesim.outputs sim in
+let run_simulation () =
+  let sim_engine = Sim.create Day1Wrap.circuit in
+  let vcd_file = Out_channel.create "waveform.vcd" in
 
-  let send_bit b = 
-    inputs.rx := if (b = 1) then Bits.vdd else Bits.gnd;
-    for _ = 1 to 434 do Cyclesim.cycle sim done
+  Exn.protect ~f:(fun () ->
+    
+    let sim = Hardcaml.Vcd.wrap vcd_file sim_engine in
+    let inputs = Cyclesim.inputs sim in
+    
+  let sendInt (valu : int) =
+    inputs.rx := Bits.gnd;
+    for _ = 1 to 4 do Cyclesim.cycle sim done;
+    for i = 0 to 7 do
+      inputs.rx := if((((valu lsr i) land 1)) = 1) then Bits.vdd else Bits.gnd;
+      for _ = 1 to 4 do Cyclesim.cycle sim done;
+    done;
+    inputs.rx := Bits.vdd;
+    for _ = 1 to 7 do Cyclesim.cycle sim done;
   in
 
   inputs.clr := Bits.vdd;
   Cyclesim.cycle sim;
   inputs.clr := Bits.gnd;
+  Cyclesim.cycle sim;
   inputs.rx := Bits.vdd;
-  for _ = 1 to 100 do Cyclesim.cycle sim done;
+  Cyclesim.cycle sim;
 
-  send_bit 0;
+  sendInt(76);
+  inputs.rx := Bits.vdd;
+  for _ = 1 to 7 do Cyclesim.cycle sim done;
+  sendInt(44);
+  inputs.rx := Bits.vdd;
+  for _ = 1 to 7 do Cyclesim.cycle sim done;
+  sendInt(0);
 
-  let sigs = [0; 1; 0; 0; 1; 1; 0; 0] in (*'L'*)
-
-  List.iter sigs ~f:send_bit;
-
-  send_bit 1;
-  for _ = 1 to 600 do Cyclesim.cycle sim done;
-
-  (* send_bit 0;
-
-  let sigs = [0; 0; 1; 0; 0; 0; 0; 1] in (*'33'*)
-
-  List.iter sigs ~f:send_bit;
-
-  send_bit 1;
-  for _ = 1 to 600 do Cyclesim.cycle sim done;
-
-  send_bit 0;
-
-  let sigs = [0; 0; 0; 0; 0; 0; 0; 1] in (*'100'*)
-
-  List.iter sigs ~f:send_bit;
-
-  send_bit 1;
-  for _ = 1 to 600 do Cyclesim.cycle sim done; *)
+  for _ = 1 to 10 do Cyclesim.cycle sim done;
 
   
-  Stdio.printf "Count: %d curSum:%d dinOut:%d\n" 
-  (Bits.to_int_trunc !(outputs.count))
-  (Bits.to_int_trunc !(outputs.curSum))
-  (Bits.to_int_trunc !(outputs.dinOut));
-  ()
+  
 
-let () = run_test ()
+    ) ~finally:(fun () ->
+      Out_channel.close vcd_file
+      )
+
+  let () = run_simulation ()

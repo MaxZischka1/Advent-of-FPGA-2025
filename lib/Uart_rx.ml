@@ -14,8 +14,8 @@ module States = struct
 
   let initialize ~clock ~rx =
     let spec = Reg_spec.create ~clock () in
-    let cpb = 434 in (*fCK/115200*)
-    let midCPB = 217 in (*Take sample on middle of signal*)
+    let cpb = 4 in (*fCK/115200*)
+    let midCPB = 2 in (*Take sample on middle of signal*)
 
     let cycleCount = Variable.reg ~width:9 spec in
     let bitCount = Variable.reg ~width:4 spec in
@@ -44,7 +44,7 @@ module States = struct
         Data, [
           if_(cycleCount.value ==:. (cpb - 1))[
             cycleCount <--. 0;
-            data <-- ((select ~high:6 ~low:0 data.value) @: rx);
+            data <-- (rx @: (select ~high:7 ~low:1 data.value));
             if_(bitCount.value ==:. 7)[
               bitCount <--. 0;
               sm.set_next Finish;
@@ -57,13 +57,14 @@ module States = struct
           ]
         ];
         Finish, [
-          if_(cycleCount.value ==:. (cpb-1))[
+          if_(cycleCount.value ==:. (cpb - 1))[
+            cycleCount <--. 0;
             valid <--. 0;
             sm.set_next Idle;
           ][
             cycleCount <-- cycleCount.value +:. 1;
           ]
-        ]
+        ];
       ]
     ];
 
