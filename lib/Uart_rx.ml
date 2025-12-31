@@ -9,7 +9,7 @@ module States = struct
   | Start
   | Data
   | Finish
-    [@@deriving enumerate, compare ~localize, sexp_of]
+  [@@deriving enumerate, compare ~localize, sexp_of]
   end 
 
   let initialize ~clock ~rx =

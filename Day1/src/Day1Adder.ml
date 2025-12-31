@@ -16,6 +16,7 @@ module O = struct
     rotSum : 'a[@bits 8];
     counter : 'a[@bits 16];
     dinOut : 'a[@bits 8];
+    finished : 'a;
   }[@@deriving hardcaml, sexp_of]
 end
 
@@ -42,17 +43,20 @@ let circuit(i : _ I.t) =
 
   let addSumAcc = Variable.reg ~enable:i.valid ~width:8 spec in
 
+  let finishedBit = Variable.reg ~width:1 spec in
+
   let subCounter = Variable.reg ~enable:i.valid ~width:1 spec in
 
   let counter = Variable.reg ~enable:i.valid ~width:16 spec in
 
-  let dir = Variable.reg ~width:1 spec in
+  let dir = Variable.reg ~width:2 spec in
 
   let () = 
     compile [
       sm.switch[
         Idle, [
           if_ (i.valid)[
+            finishedBit <--. 0;
             acc <--. 50;
             when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum;];
             when_ (i.din ==:. 82) [dir <--. 1; sm.set_next AddSum;];
@@ -73,8 +77,11 @@ let circuit(i : _ I.t) =
               acc <-- acc.value +: i.din;
               sm.set_next AddMod;
             ];
+            when_(dir.value ==:. 2)[
+              finishedBit <--. 1;
+            ];
           ][
-
+            sm.set_next AddSum;
           ]
         ];
         AddMod, [
@@ -103,6 +110,7 @@ let circuit(i : _ I.t) =
           counter <-- (counter.value +: (uresize subCounter.value ~width:16));
           when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum; ];
           when_ (i.din ==:. 82) [dir <--. 1; sm.set_next AddSum; ];
+          when_ (i.din ==:. 240) [dir <--. 2; sm.set_next AddSum;]
         ][
           sm.set_next Loop;
         ]
@@ -113,7 +121,7 @@ let circuit(i : _ I.t) =
     
 
 
-   {O.counter = counter.value; O.rotSum = addSumAcc.value; O.dinOut = i.din}
+   {O.counter = counter.value; O.rotSum = addSumAcc.value; O.dinOut = i.din; O.finished = finishedBit.value}
   (*dinOut and rotSum are used for debugging only need counter 16-bits which is annoying*)
 
 

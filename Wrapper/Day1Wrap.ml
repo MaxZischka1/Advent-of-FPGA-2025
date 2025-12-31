@@ -17,6 +17,8 @@ module O = struct
     curSum : 'a[@bits 8];
     count : 'a[@bits 16];
     valid : 'a;
+    finished : 'a;
+    tx: 'a;
   } [@@deriving hardcaml, sexp_of]
 end
 
@@ -31,4 +33,8 @@ let circuit(i : _ I.t) =
     Day1Adder.I.valid = validu;
   } in
 
-  {O.count = counter_out.counter; O.curSum = counter_out.rotSum; O.dinOut = counter_out.dinOut; O.valid = validu}
+
+  let lowerByte = Signal.select ~high:15 ~low:8 counter_out.counter in
+  let(txVal) = Uart_tx.initilize ~clock:i.clk ~data:lowerByte ~enable:counter_out.finished in
+
+  {O.count = counter_out.counter; O.curSum = counter_out.rotSum; O.dinOut = counter_out.dinOut; O.valid = validu; O.finished = counter_out.finished; O.tx = txVal}

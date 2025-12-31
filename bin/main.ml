@@ -44,13 +44,12 @@ let run_simulation () =
     sendInt(hundVal);
     for _ = 1 to 7 do Cyclesim.cycle sim done;
   );
+  sendInt(240);
+  for _ = 1 to 7 do Cyclesim.cycle sim done;
+  sendInt(0);
+  for _ = 1 to 7 do Cyclesim.cycle sim done;
 
-  sendInt(82); (*Flushing out final variabels R0 operation*)
-  for _ = 1 to 7 do Cyclesim.cycle sim done;
-  sendInt(0);
-  for _ = 1 to 7 do Cyclesim.cycle sim done;
-  sendInt(0);
-  for _ = 1 to 7 do Cyclesim.cycle sim done;
+
     ) ~finally:(fun () -> (*Had gemini help me create vcd files*)
       Out_channel.close vcd_file
       )
