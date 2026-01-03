@@ -36,8 +36,8 @@ L467|} in
     Cyclesim.cycle sim;
     inputs.valid := Bits.vdd;
     Cyclesim.cycle sim;
-    Stdio.printf "Count: %d rotSum: %d\n"
-    (Bits.to_int_trunc !(outputs.rotSum)) 
+    Stdio.printf "Count: %d\n"
+    (*(Bits.to_int_trunc !(outputs.rotSum)) *)
     (Bits.to_int_trunc !(outputs.counter));
     );
     Cyclesim.cycle sim;

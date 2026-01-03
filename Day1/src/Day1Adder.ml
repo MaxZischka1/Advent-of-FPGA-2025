@@ -13,9 +13,9 @@ end
 
 module O = struct
   type 'a t = {
-    rotSum : 'a[@bits 8];
+    (*rotSum : 'a[@bits 8];*) (*Used for debugging*)
     counter : 'a[@bits 16];
-    dinOut : 'a[@bits 8];
+    (*dinOut : 'a[@bits 8];*) (*Used for debugging*)
     finished : 'a;
   }[@@deriving hardcaml, sexp_of]
 end
@@ -121,7 +121,7 @@ let circuit(i : _ I.t) =
     
 
 
-   {O.counter = counter.value; O.rotSum = addSumAcc.value; O.dinOut = i.din; O.finished = finishedBit.value}
+   {O.counter = counter.value; O.finished = finishedBit.value}
   (*dinOut and rotSum are used for debugging only need counter 16-bits which is annoying*)
 
 
