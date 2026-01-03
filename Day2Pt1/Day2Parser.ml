@@ -19,7 +19,6 @@ let parse2 str_range =
     let upperBoundInt = Int.of_string upperBound in
     let upperBoundBcd = bcdConv upperBoundInt in
     let lowerBoundBcd = bcdConv lowerBoundInt in
-    (lowerBoundBcd,upperBoundBcd, (String.length lowerBound), (String.length upperBound))
-    )
+    (lowerBoundBcd,upperBoundBcd, (String.length lowerBound), (String.length upperBound)))
 
 
