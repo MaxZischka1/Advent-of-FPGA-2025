@@ -25,22 +25,19 @@ let circuit(i : _ I.t) =
   let spec = Reg_spec.create ~clock:i.clk ~clear:i.clr () in 
 
   (*Combinational logic using wire loops*)
-  let accW = Signal.wire 8 in
+  let acc = reg_fb spec ~enable:i.valid ~width:8 ~f:(fun currentVal -> (*Mux2 logic backwards?*)
+    let dir = (i.char ==:. 76) in
 
-  let dir = (i.char ==:. 76) in
+    let nextVal = mux2 dir (currentVal -: i.din) (currentVal +: i.din) in
 
-  let nextVal = mux2 dir (accW -: i.din) (accW +: i.din) in
+    let ovfFlag = (nextVal >=:. 100) in
 
-  let ovfFlag = (nextVal >=:. 100) in
+    let correction = mux2 dir (nextVal +:. 100) (nextVal -:. 100) in
 
-  let correction = mux2 dir (accW +:. 100) (accW -:. 100) in
+    mux2 ovfFlag correction nextVal 
+  ) in
 
-  let nextSum = mux2 ovfFlag correction nextVal in
-  let sumReg = reg spec ~enable:i.valid nextSum in
-
-  let _ = accW <=: sumReg in
-
-  {O.counter = accW}
+  {O.counter = acc}
   
 
 
