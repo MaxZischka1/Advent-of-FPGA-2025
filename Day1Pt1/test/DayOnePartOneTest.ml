@@ -28,5 +28,4 @@ let%expect_test "Day1 Simulation" =
   (Bits.to_int_trunc !(outputs.rotSum))
   (Bits.to_int_trunc !(outputs.counter))
   (Bits.to_int_trunc !(outputs.dinOut));
-  
   [%expect {| Final Sum: 18 Count: 1031, dinOut 30 |}]
