@@ -4,8 +4,8 @@ open! DayOne
 
 let%expect_test "Advent of Code TB" = 
   let module Sim = Cyclesim.With_interface(Day1Adder.I)(Day1Adder.O) in
-  let sim_engine = Sim.create Day1Adder.circuit in
-  let _waves,sim = Hardcaml_waveterm.Waveform.create sim_engine in
+  let sim = Sim.create Day1Adder.circuit in
+  (*let _waves,sim = Hardcaml_waveterm.Waveform.create sim_engine in*)
 
   let inputs = Cyclesim.inputs sim in
   let outputs = Cyclesim.outputs sim in
