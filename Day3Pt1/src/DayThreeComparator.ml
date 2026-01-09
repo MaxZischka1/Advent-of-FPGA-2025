@@ -12,25 +12,33 @@ end
 
 module O = struct
   type 'a t = {
-    dout :'a[@bits 10];
+    dout :'a[@bits 8];
   }[@@deriving hardcaml, sexp_of]
 end
 
   
 let circuit(i : _ I.t) =
   let open Signal in
+   let module Case = Hardcaml.With_valid in
 
   let spec = Reg_spec.create ~clock:i.clk ~clear:i.clr () in
 
-  let bits = List.init 10 ~f:(fun j ->
-    let flag = (i.din ==: of_int_trunc ~width:4 j) &: i.valid in
+  (*Valid implementation*)
 
-    reg_fb ~width:1 spec ~f:(fun curr ->
-    curr |: flag
-    )
-  ) in
+  let val1 = reg_fb spec ~width:4 ~f:(fun currentVal ->
+    (*din greater than current(1). Swap. Else keep(0). Or val2 == 0 so val1 = prev val2(2)*)
+    mux2 (i.valid &: (i.din >: currentVal)) i.din currentVal
+    )in
 
-  {O.dout = concat_lsb bits}
+  let val2 = reg_fb spec ~width:4 ~f:(fun currentVal ->
+    let sel1 = i.din >: val1 in
+    let sel2 = i.din >: currentVal in
+    let sel = sel1 @: sel2 in
+    mux sel [currentVal; i.din; val1;]
+    ) in
+
+    { O.dout = concat_lsb [val2; val1] }
+
 
 
 
