@@ -34,11 +34,14 @@ let circuit(i : _ I.t) =
     let sel1 = i.din >: val1 in
     let sel2 = i.din >: currentVal in
     let sel = sel1 @: sel2 in
-    mux sel [currentVal; i.din; val1;]
+    mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0]
     ) in
 
-    { O.dout = concat_lsb [val2; val1] }
+    let val3 = reg spec ~enable:(i.valid) val1 in 
 
+    let finalVal = mux2 (val2 ==:. 0) (val3 @: val1) (val1 @: val2) in
+
+    { O.dout = finalVal }
 
 
 
