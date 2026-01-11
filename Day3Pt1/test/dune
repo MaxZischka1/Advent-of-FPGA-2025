@@ -1,6 +1,6 @@
 (library
  (name DayThreePartOneTest)
- (inline_tests)
+ (inline_tests (deps inputs.txt))
  (libraries core hardcaml  
  DayThreePartOne
  hardcaml_test_harness

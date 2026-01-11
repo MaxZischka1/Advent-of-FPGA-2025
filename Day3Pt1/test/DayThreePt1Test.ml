@@ -13,12 +13,9 @@ let%expect_test "Day Three Simple test" =
   Cyclesim.cycle sim;
   inputs.clr := Bits.gnd;
 
-  let raw_input = {|987654321111110
-811111111111119
-234234234234278
-818181911112111|} in
+  let lines = In_channel.read_all "inputs.txt" in
 
-  let parseVals = DayThreeParser.lineParser2 raw_input in
+  let parseVals = DayThreeParser.lineParser2 lines in
 
   List.iter parseVals ~f:(fun(valu) ->
     List.iter valu ~f:(fun(vals) ->
@@ -26,14 +23,18 @@ let%expect_test "Day Three Simple test" =
       inputs.din := Bits.of_int_trunc ~width:4 vals;
       Cyclesim.cycle sim;
       );
-
-      inputs.valid := Bits.gnd;
+    inputs.valid := Bits.gnd;
+      Cyclesim.cycle sim;
       Stdio.printf "Bits:%d\n"
       (Bits.to_int_trunc!(outputs.dout));
-      inputs.clr := Bits.vdd;
+      
+      );
+      inputs.valid := Bits.vdd;
       Cyclesim.cycle sim;
-      inputs.clr := Bits.gnd;
-    );
+      inputs.valid := Bits.gnd;
+      Cyclesim.cycle sim;
+      Stdio.printf "Bitsy:%d\n"
+      (Bits.to_int_trunc!(outputs.dout));
 
     [%expect {||}]
 
