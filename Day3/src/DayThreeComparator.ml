@@ -12,7 +12,7 @@ end
 
 module O = struct
   type 'a t = {
-    dout :'a[@bits 12];
+    dout :'a[@bits 48];
   }[@@deriving hardcaml, sexp_of]
 end
 
@@ -122,9 +122,11 @@ let circuit(i : _ I.t) =
     ) in
 
     let finalValCur = (val1 @: val2 @: val3 @: val4 @: val5 @: val6 @: val7 @: val8 @: val9 @: val10 @: val11 @: val12) in
+    let finalValReg = reg spec ~enable:finished finalValCur in
+
 
     (*Pipelines*)
-    let finalDel1 = pipeline spec ~n:1 ~enable:i.valid finalValCur in
+    (* let finalDel1 = pipeline spec ~n:1 ~enable:i.valid finalValCur in
     let finalDel2 = pipeline spec ~n:2 ~enable:i.valid finalValCur in
     let finalDel3 = pipeline spec ~n:3 ~enable:i.valid finalValCur in
     let finalDel4 = pipeline spec ~n:4 ~enable:i.valid finalValCur in
@@ -135,11 +137,30 @@ let circuit(i : _ I.t) =
     let finalDel9 = pipeline spec ~n:9 ~enable:i.valid finalValCur in
     let finalDel10 = pipeline spec ~n:10 ~enable:i.valid finalValCur in
     let finalDel11 = pipeline spec ~n:11 ~enable:i.valid finalValCur in
-    let finalDel12 = pipeline spec ~n:12 ~enable:i.valid finalValCur in
+    let finalDel12 = pipeline spec ~n:12 ~enable:i.valid finalValCur in *)
 
-    let finalVal = 
+    (* let valSplit = [select ~high:3 ~low:0 finalValCur
+    ;select ~high:7 ~low:4 finalValCur
+    ;select ~high:11 ~low:8 finalValCur
+    ;select ~high:15 ~low:12 finalValCur
+    ;select ~high:19 ~low:16 finalValCur
+    ;select ~high:23 ~low:20 finalValCur
+    ;select ~high:27 ~low:24 finalValCur
+    ;select ~high:31 ~low:28 finalValCur
+    ;select ~high:35 ~low:32 finalValCur
+    ;select ~high:39 ~low:36 finalValCur
+    ;select ~high:43 ~low:40 finalValCur] in
+
+    let revList = List.rev valSplit in
 
 
-    let finalReg = reg spec ~enable:finished finalVal in
+    let cases = List.mapi revList ~f:(fun i currentVal ->
+      {With_valid.
+      valid = currentVal <>: (zero 4);
+      value = of_int_trunc ~width:4 (11-i)}
+      ) in
 
-    {O.dout = finalReg}
+    let selVal = priority_select cases in
+   *)
+
+    {O.dout = finalValReg}
