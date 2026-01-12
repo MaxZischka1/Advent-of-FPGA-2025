@@ -1,10 +1,10 @@
 open! Core
 open! Hardcaml
-open! DayThreePartOne
+open! DayThree
 
 let%expect_test "Day Three Simple test" =
-  let module Sim = Cyclesim.With_interface(DayThreeComparatorpt1.I)(DayThreeComparatorpt1.O) in
-  let sim = Sim.create DayThreeComparatorpt1.circuit in
+  let module Sim = Cyclesim.With_interface(DayThreeComparator.I)(DayThreeComparator.O) in
+  let sim = Sim.create DayThreeComparator.circuit in
 
   let inputs = Cyclesim.inputs sim in
   let outputs = Cyclesim.outputs sim in
