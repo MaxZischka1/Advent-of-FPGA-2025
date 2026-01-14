@@ -2,13 +2,13 @@
  
 # Day 1
 
-## System approach: 
+## Overview: 
 I utilized a CPU for parsing and an FPGA for the actual solution logic
 * **CPU:** Handles string parsing and arithmetic like division/modulo operations.
 * **FPGA (intended target) Intel MAX 10:** Implements the core logic and state machine.
 * **Communication:** Data is streamed via UART (8-bit) using a protocol with `valid`, `data`, `clk`, and `clear` signals.
 
-## Design Overview
+## Design Approach
 
 For Day 1, my approach was based on the idea that each rotation command consists of three parts: a character for direction, a decimal value to add or subtract from the total, and a newline character that marks the end of the command. To build the parser, I took the raw input string which is VAL\nVAL\nVAL... vand used the split_lines operator to break it into a list of individual strings. Once I had that list, I iterated through it to separate each string into its two core pieces being the character value and the numeric value.
 
@@ -25,12 +25,12 @@ Final Logic [Day1Adder.ml](Day1/src/Day1Adder.ml)
 
 # Day 3
 
-## System approach: 
+## Overview: 
 I utilized a CPU for parsing and an FPGA for the actual solution logic
 * **CPU:** Handling String parsing, creating a tuple of number and position inputs.
 * **FPGA (intended target) Intel MAX 10:** Implements the feedback register and accumulator
 
-## Design Overview
+## Design Approach
 
 For the Day 3 implementation, I designed a system based on two feedback registers that continuously compare the current output against the incoming data stream. To support this logic, I first developed a parser to transform the raw input into a format suitable for the hardware. The parser takes a large string input, breaks it down by line, and then further splits each line into individual characters. As the program iterates through these characters, it converts them into a constant 4-bit input representing values between 1 and 9.
 
