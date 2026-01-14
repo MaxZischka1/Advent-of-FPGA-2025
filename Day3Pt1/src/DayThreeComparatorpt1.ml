@@ -24,9 +24,8 @@ let circuit(i : _ I.t) =
   let spec = Reg_spec.create ~clock:i.clk ~clear:i.clr () in
 
 
-    let finished = (reg spec i.valid) &: ~:(i.valid) in
+    let finished = (reg spec i.valid) &: ~:(i.valid) in(*Falling valid edge clocked*)
 
-    (* let finishedReg = reg spec ~enable:i.valid finished in *)
 
 
   (*Valid implementation*)
@@ -43,9 +42,9 @@ let circuit(i : _ I.t) =
     mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
-    let val3 = reg spec ~enable:(i.valid) val1 in 
+    let val3 = reg spec ~enable:(i.valid) val1 in (*val1 of 1 clock cycle previous*)
 
-    let finalVal = mux2 (val2 ==:. 0) (val3 @: val1) (val1 @: val2) in
+    let finalVal = mux2 (val2 ==:. 0) (val3 @: val1) (val1 @: val2) in (*only case where zero can appear*)
 
     let finalReg = reg spec ~enable:finished finalVal in
 
@@ -55,7 +54,7 @@ let circuit(i : _ I.t) =
       let upper8 = uresize ~width:8 upperNib in
       let lowerNib = sel_bottom ~width:4 finalReg in
       let lower8 = uresize ~width:8 lowerNib in
-      let tensVal = (sll ~by:3 upper8) +: (sll ~by:1 upper8) in
+      let tensVal = (sll ~by:3 upper8) +: (sll ~by:1 upper8) in (*Effecient *: operation*)
       let newVal = tensVal +: lower8 in
       let newVal32 = uresize ~width:32 newVal in
       (currentVal +: newVal32)

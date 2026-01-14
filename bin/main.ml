@@ -19,7 +19,7 @@ let run_simulation () =
     for _ = 1 to 4 do Cyclesim.cycle sim done;
     for i = 0 to 7 do
       inputs.rx := if((((valu lsr i) land 1)) = 1) then Bits.vdd else Bits.gnd;
-      for _ = 1 to 4 do Cyclesim.cycle sim done;
+      for _ = 1 to 4 do Cyclesim.cycle sim done; (*For gtkWave use 4 but for actual use 5208*)
     done;
     inputs.rx := Bits.vdd;
     for _ = 1 to 7 do Cyclesim.cycle sim done;

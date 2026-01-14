@@ -45,11 +45,11 @@ let circuit(i : _ I.t) =
 
   let finishedBit = Variable.reg ~width:1 spec in
 
-  let subCounter = Variable.reg ~enable:i.valid ~width:1 spec in
+  let subCounter = Variable.reg ~enable:i.valid ~width:1 spec in (*Allow i.din to add to counter in same state*)
 
   let counter = Variable.reg ~enable:i.valid ~width:16 spec in
 
-  let dir = Variable.reg ~width:2 spec in
+  let dir = Variable.reg ~width:2 spec in (*used for final state. Definitly could be better*)
 
   let () = 
     compile [
@@ -57,8 +57,8 @@ let circuit(i : _ I.t) =
         Idle, [
           if_ (i.valid)[
             finishedBit <--. 0;
-            acc <--. 50;
-            when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum;];
+            acc <--. 50; (*Initialize*)
+            when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum;]; (*First data input*)
             when_ (i.din ==:. 82) [dir <--. 1; sm.set_next AddSum;];
           ][
             sm.set_next Idle;
@@ -67,10 +67,10 @@ let circuit(i : _ I.t) =
         AddSum, [
           if_ (i.valid)[
             subCounter <--. 0;
-            addSumAcc <-- acc.value;
-            when_ (dir.value ==:. 0)[
-              when_(acc.value ==:. 0)[counter <-- counter.value -:. 1;];
-              acc <-- acc.value -: i.din;
+            addSumAcc <-- acc.value; (*Only used for test*)
+            when_ (dir.value ==:. 0)[ (*'L'*)
+              when_(acc.value ==:. 0)[counter <-- counter.value -:. 1;]; (*Cancels the increment later*)
+              acc <-- acc.value -: i.din; 
               sm.set_next AddMod;
             ];
             when_ (dir.value ==:. 1)[
@@ -86,19 +86,19 @@ let circuit(i : _ I.t) =
         ];
         AddMod, [
           if_(i.valid)[
-            when_(acc.value >=:. 100)[
-              when_(dir.value ==:. 0)[
+            when_(acc.value >=:. 100)[ (*Handles over/under flow*)
+              when_(dir.value ==:. 0)[ (*Went under zero*)
                 acc <-- acc.value +:. 100;
               ];
-              when_(dir.value ==:. 1)[
+              when_(dir.value ==:. 1)[(*Went over 100*)
                 acc <-- acc.value -:. 100;
               ];
-              subCounter <--. 1;
+              subCounter <--. 1; (*Increment count*)
             ];
             when_((acc.value ==:. 0)) [
               subCounter <--. 1;
             ];
-            counter <-- (counter.value +: (uresize i.din ~width:16));
+            counter <-- (counter.value +: (uresize i.din ~width:16)); (*Add numVal/100*)
             sm.set_next Loop;
           ][
             sm.set_next AddMod;
@@ -107,10 +107,10 @@ let circuit(i : _ I.t) =
       Loop, [
         if_(i.valid)[
           subCounter <--. 0;
-          counter <-- (counter.value +: (uresize subCounter.value ~width:16));
-          when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum; ];
+          counter <-- (counter.value +: (uresize subCounter.value ~width:16)); (*add sub to count*)
+          when_ (i.din ==:. 76) [dir <--. 0; sm.set_next AddSum; ]; 
           when_ (i.din ==:. 82) [dir <--. 1; sm.set_next AddSum; ];
-          when_ (i.din ==:. 240) [dir <--. 2; sm.set_next AddSum;]
+          when_ (i.din ==:. 240) [dir <--. 2; sm.set_next AddSum;] (*Final state*)
         ][
           sm.set_next Loop;
         ]

@@ -14,10 +14,16 @@ let%expect_test "Advent of Code TB" =
   Cyclesim.cycle sim;
   inputs.clr := Bits.gnd;
 
-  let raw_input = {|L28
-R38
-R40
-L467|} in
+  let raw_input = {|L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82|} in
   let commands = Day1Parser.parse raw_input in 
   (*test for not valid data bits*)
   List.iter commands ~f:(fun(dir,valu, hundVal) ->

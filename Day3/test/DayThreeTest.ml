@@ -1,4 +1,4 @@
-open! Core
+open! Core (*CHANGE inputs.txt to AoC inputs you recieved*)
 open! Hardcaml
 open! DayThree
 
@@ -17,11 +17,11 @@ let%expect_test "Day Three Simple test" =
 
   let parseVals = DayThreeParser.lineParser2 lines in
 
-  List.iter parseVals ~f:(fun(valu) ->
-    List.iter valu ~f:(fun(vals,pos) ->
+  List.iter parseVals ~f:(fun(valu) -> (*Parse list*)
+    List.iter valu ~f:(fun(vals,pos) -> (*Parse string*)
       inputs.valid := Bits.vdd;
-      inputs.din := Bits.of_int_trunc ~width:4 vals;
-      inputs.pos := Bits.of_int_trunc ~width:8 pos;
+      inputs.din := Bits.of_int_trunc ~width:4 vals; (*number input*)
+      inputs.pos := Bits.of_int_trunc ~width:8 pos; (*position*)
       Cyclesim.cycle sim;
       );
     inputs.valid := Bits.gnd;
@@ -33,7 +33,7 @@ let%expect_test "Day Three Simple test" =
       Cyclesim.cycle sim;
       inputs.valid := Bits.gnd;
       Cyclesim.cycle sim;
-      Stdio.printf "Bitsy:%d\n"
+      Stdio.printf "FinalVal:%d\n"
       (Bits.to_int_trunc!(outputs.dout));
 
     [%expect {||}]
