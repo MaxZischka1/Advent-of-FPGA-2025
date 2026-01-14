@@ -5,5 +5,5 @@ let lineParser2 vals =
   |> List.map ~f:(fun line ->
     line
     |> String.to_list
-    |> List.map ~f:(fun chr -> Char.to_int chr - Char.to_int '0')
+    |> List.mapi ~f:(fun i chr -> (Char.to_int chr - Char.to_int '0'),i)
     )

@@ -18,16 +18,16 @@ let%expect_test "Day Three Simple test" =
   let parseVals = DayThreeParser.lineParser2 lines in
 
   List.iter parseVals ~f:(fun(valu) ->
-    List.iter valu ~f:(fun(vals) ->
+    List.iter valu ~f:(fun(vals,pos) ->
       inputs.valid := Bits.vdd;
       inputs.din := Bits.of_int_trunc ~width:4 vals;
+      inputs.pos := Bits.of_int_trunc ~width:8 pos;
       Cyclesim.cycle sim;
       );
     inputs.valid := Bits.gnd;
       Cyclesim.cycle sim;
       Stdio.printf "Bits:%d\n"
       (Bits.to_int_trunc!(outputs.dout));
-      
       );
       inputs.valid := Bits.vdd;
       Cyclesim.cycle sim;

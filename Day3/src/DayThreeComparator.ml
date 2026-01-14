@@ -7,12 +7,13 @@ module I = struct
     clr :'a;
     valid : 'a;
     din :'a[@bits 4];
+    pos : 'a[@bits 8];
   }[@@deriving hardcaml, sexp_of]
 end
 
 module O = struct
   type 'a t = {
-    dout :'a[@bits 48];
+    dout :'a[@bits 64];
   }[@@deriving hardcaml, sexp_of]
 end
 
@@ -22,145 +23,146 @@ let circuit(i : _ I.t) =
    let module Case = Hardcaml.With_valid in
 
   let spec = Reg_spec.create ~clock:i.clk ~clear:i.clr () in
-
-
-    let finished = (reg spec i.valid) &: ~:(i.valid) in
-
-    (* let finishedReg = reg spec ~enable:i.valid finished in *)
-
-
+  let finished = (reg spec i.valid) &: ~:(i.valid) in
+  (* let finishedReg = reg spec ~enable:i.valid finished in *)
   (*Valid implementation*)
-
   let val1 = reg_fb spec ~width:4 ~f:(fun currentVal ->
     (*din greater than current(1). Swap. Else keep(0). Or val2 == 0 so val1 = prev val2(2)*)
-    mux2 finished (zero 4) (mux2 (i.valid &: (i.din >: currentVal)) i.din currentVal)
+    mux2 finished (zero 4) (mux2 (i.valid &: (i.din >: currentVal) &: (i.pos <:. 89)) i.din currentVal)
     )in
 
   let val2 = reg_fb spec ~width:4 ~f:(fun currentVal ->
-    let sel1 = i.din >: val1 in
-    let sel2 = i.din >: currentVal in
+    let sel1 = ((i.din >: val1)&: (i.pos <:. 89)) in
+    let sel2 = ((i.din >: currentVal) &: (i.pos <:. 90)) in
     let sel = sel1 @: sel2 in
     mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
     let val3 = reg_fb spec ~width:4 ~f:(fun currentVal ->
-      let sel1 = (i.din >: val1) |: (i.din >: val2) in
-      let sel2 = (i.din >: currentVal) in
+      let sel1 = ((i.din >: val1)&: (i.pos <:. 89)) |: ((i.din >: val2)&:(i.pos <:. 90))in
+      let sel2 = (i.din >: currentVal)&:(i.pos<:.91) in
       let sel = sel1 @: sel2 in
        mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
     let val4 = reg_fb spec ~width:4 ~f:(fun currentVal ->
-      let sel1 = (i.din >: val1) |: (i.din >: val2) |: (i.din >: val3) in
-      let sel2 = (i.din >: currentVal) in
+      let sel1 = ((i.din >: val1)&: (i.pos <:. 89)) |: ((i.din >: val2)&:(i.pos <:. 90)) |: ((i.din >: val3)&:(i.pos <:. 91))in
+      let sel2 = (i.din >: currentVal)&:(i.pos<:.92) in
       let sel = sel1 @: sel2 in
        mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
     let val5 = reg_fb spec ~width:4 ~f:(fun currentVal ->
-      let sel1 = (i.din >: val1) |: (i.din >: val2) |: (i.din >: val3) |: (i.din >: val4)in
-      let sel2 = (i.din >: currentVal) in
+      let sel1 = ((i.din >: val1)&: (i.pos <:. 89)) |: ((i.din >: val2)&:(i.pos <:. 90)) |: ((i.din >: val3)&:(i.pos <:. 91)) 
+    |: ((i.din >: val4)&:(i.pos <:. 92))in
+      let sel2 = (i.din >: currentVal)&:(i.pos<:.93) in
       let sel = sel1 @: sel2 in
        mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
     let val6 = reg_fb spec ~width:4 ~f:(fun currentVal ->
-      let sel1 = (i.din >: val1) |: (i.din >: val2) |: (i.din >: val3) |: (i.din >: val4) |: (i.din >: val5)in
-      let sel2 = (i.din >: currentVal) in
+     let sel1 = ((i.din >: val1)&: (i.pos <:. 89)) |: ((i.din >: val2)&:(i.pos <:. 90)) |: ((i.din >: val3)&:(i.pos <:. 91)) 
+    |: ((i.din >: val4)&:(i.pos <:. 92)) |: ((i.din >: val5)&:(i.pos <:. 93))in
+      let sel2 = (i.din >: currentVal)&:(i.pos<:.94) in
       let sel = sel1 @: sel2 in
        mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
     let val7 = reg_fb spec ~width:4 ~f:(fun currentVal ->
-      let sel1 = (i.din >: val1) |: (i.din >: val2) |: (i.din >: val3) |: (i.din >: val4) |: (i.din >: val5) |: (i.din >: val6) in
-      let sel2 = (i.din >: currentVal) in
+      let sel1 = ((i.din >: val1)&: (i.pos <:. 89)) |: ((i.din >: val2)&:(i.pos <:. 90)) |: ((i.din >: val3)&:(i.pos <:. 91)) 
+    |: ((i.din >: val4)&:(i.pos <:. 92)) |: ((i.din >: val5)&:(i.pos <:. 93)) |: ((i.din >: val6)&:(i.pos <:. 94)) in
+      let sel2 = (i.din >: currentVal)&:(i.pos<:.95) in
       let sel = sel1 @: sel2 in
        mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
     let val8 = reg_fb spec ~width:4 ~f:(fun currentVal ->
-      let sel1 = (i.din >: val1) |: (i.din >: val2) |: (i.din >: val3) 
-      |: (i.din >: val4) |: (i.din >: val5) |: (i.din >: val6) |: (i.din >: val7)in
-      let sel2 = (i.din >: currentVal) in
+      let sel1 = ((i.din >: val1)&: (i.pos <:. 89)) |: ((i.din >: val2)&:(i.pos <:. 90)) |: ((i.din >: val3)&:(i.pos <:. 91)) 
+    |: ((i.din >: val4)&:(i.pos <:. 92)) |: ((i.din >: val5)&:(i.pos <:. 93)) |: ((i.din >: val6)&:(i.pos <:. 94))
+    |: ((i.din >: val7)&:(i.pos<:.95)) in
+      let sel2 = (i.din >: currentVal)&:(i.pos<:.96) in
       let sel = sel1 @: sel2 in
        mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
     let val9 = reg_fb spec ~width:4 ~f:(fun currentVal ->
-      let sel1 = (i.din >: val1) |: (i.din >: val2) |: (i.din >: val3)
-    |: (i.din >: val4) |: (i.din >: val5) |: (i.din >: val6) |: (i.din >: val7) |: (i.din >: val8) in
-      let sel2 = (i.din >: currentVal) in
+      let sel1 = ((i.din >: val1)&: (i.pos <:. 89)) |: ((i.din >: val2)&:(i.pos <:. 90)) |: ((i.din >: val3)&:(i.pos <:. 91)) 
+    |: ((i.din >: val4)&:(i.pos <:. 92)) |: ((i.din >: val5)&:(i.pos <:. 93)) |: ((i.din >: val6)&:(i.pos <:. 94))
+    |: ((i.din >: val7)&:(i.pos<:.95)) |: ((i.din >: val8)&:(i.pos<:.96))in
+      let sel2 = (i.din >: currentVal)&:(i.pos<:.97) in
       let sel = sel1 @: sel2 in
        mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
     let val10 = reg_fb spec ~width:4 ~f:(fun currentVal ->
-      let sel1 = (i.din >: val1) |: (i.din >: val2) |: (i.din >: val3)
-    |: (i.din >: val4) |: (i.din >: val5) |: (i.din >: val6) |: (i.din >: val7) |: (i.din >: val8) 
-    |: (i.din >: val9) in
-      let sel2 = (i.din >: currentVal) in
+      let sel1 = ((i.din >: val1)&: (i.pos <:. 89)) |: ((i.din >: val2)&:(i.pos <:. 90)) |: ((i.din >: val3)&:(i.pos <:. 91)) 
+    |: ((i.din >: val4)&:(i.pos <:. 92)) |: ((i.din >: val5)&:(i.pos <:. 93)) |: ((i.din >: val6)&:(i.pos <:. 94))
+    |: ((i.din >: val7)&:(i.pos<:.95)) |: ((i.din >: val8)&:(i.pos<:.96)) |: ((i.din >: val9)&:(i.pos<:.97))in
+      let sel2 = (i.din >: currentVal)&:(i.pos<:.98) in
       let sel = sel1 @: sel2 in
        mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
     let val11 = reg_fb spec ~width:4 ~f:(fun currentVal ->
-      let sel1 = (i.din >: val1) |: (i.din >: val2) |: (i.din >: val3)
-    |: (i.din >: val4) |: (i.din >: val5) |: (i.din >: val6) |: (i.din >: val7) |: (i.din >: val8) 
-    |: (i.din >: val9) |: (i.din >: val10) in
-      let sel2 = (i.din >: currentVal) in
+      let sel1 = ((i.din >: val1)&: (i.pos <:. 89)) |: ((i.din >: val2)&:(i.pos <:. 90)) |: ((i.din >: val3)&:(i.pos <:. 91)) 
+    |: ((i.din >: val4)&:(i.pos <:. 92)) |: ((i.din >: val5)&:(i.pos <:. 93)) |: ((i.din >: val6)&:(i.pos <:. 94))
+    |: ((i.din >: val7)&:(i.pos<:.95)) |: ((i.din >: val8)&:(i.pos<:.96)) |: ((i.din >: val9)&:(i.pos<:.97))
+    |: ((i.din >: val10)&:(i.pos<:.98)) in
+      let sel2 = (i.din >: currentVal)&:(i.pos<:.99) in
       let sel = sel1 @: sel2 in
        mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
     let val12 = reg_fb spec ~width:4 ~f:(fun currentVal ->
-      let sel1 = (i.din >: val1) |: (i.din >: val2) |: (i.din >: val3)
-    |: (i.din >: val4) |: (i.din >: val5) |: (i.din >: val6) |: (i.din >: val7) |: (i.din >: val8) 
-    |: (i.din >: val9) |: (i.din >: val10) |: (i.din >: val11) in
-      let sel2 = (i.din >: currentVal) in
+      let sel1 = ((i.din >: val1)&: (i.pos <:. 89)) |: ((i.din >: val2)&:(i.pos <:. 90)) |: ((i.din >: val3)&:(i.pos <:. 91)) 
+    |: ((i.din >: val4)&:(i.pos <:. 92)) |: ((i.din >: val5)&:(i.pos <:. 93)) |: ((i.din >: val6)&:(i.pos <:. 94))
+    |: ((i.din >: val7)&:(i.pos<:.95)) |: ((i.din >: val8)&:(i.pos<:.96)) |: ((i.din >: val9)&:(i.pos<:.97))
+    |: ((i.din >: val10)&:(i.pos<:.98)) |: ((i.din >: val11)&:(i.pos<:.99)) in
+      let sel2 = (i.din >: currentVal)&:(i.pos<:.100) in
       let sel = sel1 @: sel2 in
        mux2 finished (zero 4) (mux sel [currentVal;i.din; of_int_trunc ~width:4 0; of_int_trunc ~width:4 0])
     ) in
 
-    let finalValCur = (val1 @: val2 @: val3 @: val4 @: val5 @: val6 @: val7 @: val8 @: val9 @: val10 @: val11 @: val12) in
-    let finalValReg = reg spec ~enable:finished finalValCur in
+  
 
+    let finalVal1Reg = reg spec ~enable:finished val1 in
+    let finalVal2Reg = reg spec ~enable:finished val2 in
+    let finalVal3Reg = reg spec ~enable:finished val3 in
+    let finalVal4Reg = reg spec ~enable:finished val4 in
+    let finalVal5Reg = reg spec ~enable:finished val5 in
+    let finalVal6Reg = reg spec ~enable:finished val6 in
+    let finalVal7Reg = reg spec ~enable:finished val7 in
+    let finalVal8Reg = reg spec ~enable:finished val8 in
+    let finalVal9Reg = reg spec ~enable:finished val9 in
+    let finalVal10Reg = reg spec ~enable:finished val10 in
+    let finalVal11Reg = reg spec ~enable:finished val11 in
+    let finalVal12Reg = reg spec ~enable:finished val12 in
 
-    (*Pipelines*)
-    (* let finalDel1 = pipeline spec ~n:1 ~enable:i.valid finalValCur in
-    let finalDel2 = pipeline spec ~n:2 ~enable:i.valid finalValCur in
-    let finalDel3 = pipeline spec ~n:3 ~enable:i.valid finalValCur in
-    let finalDel4 = pipeline spec ~n:4 ~enable:i.valid finalValCur in
-    let finalDel5 = pipeline spec ~n:5 ~enable:i.valid finalValCur in
-    let finalDel6 = pipeline spec ~n:6 ~enable:i.valid finalValCur in
-    let finalDel7 = pipeline spec ~n:7 ~enable:i.valid finalValCur in
-    let finalDel8 = pipeline spec ~n:8 ~enable:i.valid finalValCur in
-    let finalDel9 = pipeline spec ~n:9 ~enable:i.valid finalValCur in
-    let finalDel10 = pipeline spec ~n:10 ~enable:i.valid finalValCur in
-    let finalDel11 = pipeline spec ~n:11 ~enable:i.valid finalValCur in
-    let finalDel12 = pipeline spec ~n:12 ~enable:i.valid finalValCur in *)
+    (* let finalValCur = (finalVal1Reg @: finalVal2Reg @: finalVal3Reg @:
+    finalVal4Reg @: finalVal5Reg @: finalVal6Reg @:
+    finalVal7Reg @: finalVal8Reg @: finalVal9Reg @: finalVal10Reg @:
+    finalVal11Reg @: finalVal12Reg) in *)
 
-    (* let valSplit = [select ~high:3 ~low:0 finalValCur
-    ;select ~high:7 ~low:4 finalValCur
-    ;select ~high:11 ~low:8 finalValCur
-    ;select ~high:15 ~low:12 finalValCur
-    ;select ~high:19 ~low:16 finalValCur
-    ;select ~high:23 ~low:20 finalValCur
-    ;select ~high:27 ~low:24 finalValCur
-    ;select ~high:31 ~low:28 finalValCur
-    ;select ~high:35 ~low:32 finalValCur
-    ;select ~high:39 ~low:36 finalValCur
-    ;select ~high:43 ~low:40 finalValCur] in
+    let finalValList = [finalVal1Reg; 
+    finalVal2Reg; 
+    finalVal3Reg;
+    finalVal4Reg;
+    finalVal5Reg;
+    finalVal6Reg;
+    finalVal7Reg;
+    finalVal8Reg;
+    finalVal9Reg;
+    finalVal10Reg;
+    finalVal11Reg;
+    finalVal12Reg] in
 
-    let revList = List.rev valSplit in
-
-
-    let cases = List.mapi revList ~f:(fun i currentVal ->
-      {With_valid.
-      valid = currentVal <>: (zero 4);
-      value = of_int_trunc ~width:4 (11-i)}
+    let accum = reg_fb spec ~enable:finished ~width:64 ~f:(fun currentVal ->
+      let binVal = List.fold_left finalValList ~init:(zero 64) ~f:(fun finalVal cur ->
+        let times10 = ((sll ~by:3 finalVal) +: (sll ~by:1 finalVal)) in
+        times10 +: (uresize ~width:64 cur)
       ) in
+      currentVal +: binVal
+      ) in 
 
-    let selVal = priority_select cases in
-   *)
 
-    {O.dout = finalValReg}
+    {O.dout = accum}
